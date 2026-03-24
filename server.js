@@ -107,5 +107,5 @@ const swaggerOptions = {
 
 const specs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-
-app.listen(3000, () => console.log(` Serveur : http://localhost:3000/api-docs`));
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Serveur sur le port ${PORT}`));
