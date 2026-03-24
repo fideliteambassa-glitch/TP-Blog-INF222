@@ -197,7 +197,7 @@ app.get('/', (req, res) => {
                 // ==========================================
                 // ⚠️ IMPORTANT : VERIFIE CETTE ROUTE
                 // ==========================================
-                const API_URL = '/api/articles'; // Mets '/api/articles' si c'est ce que tu as dans ton backend !
+                const API_URL = '/articles'; // Mets '/api/articles' si c'est ce que tu as dans ton backend !
                 
                 const form = document.getElementById('articleForm');
                 const titleInput = document.getElementById('title');
