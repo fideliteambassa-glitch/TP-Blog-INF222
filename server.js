@@ -108,4 +108,21 @@ const swaggerOptions = {
 const specs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 const PORT = process.env.PORT || 3000;
+// Route pour la page d'accueil
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+            <head><title>Mon API Blog - INF 222</title></head>
+            <body style="font-family: sans-serif; text-align: center; padding: 50px; background-color: #f4f4f9;">
+                <h1 style="color: #2c3e50;"> Backend Connecté avec Succès !</h1>
+                <p>Bienvenue sur l'API de mon blog pour l'UE INF 222.</p>
+                <div style="margin-top: 30px;">
+                    <a href="/api-docs" style="padding: 12px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                        Consulter la Documentation Swagger
+                    </a>
+                </div>
+            </body>
+        </html>
+    `);
+});
 app.listen(PORT, () => console.log(`Serveur sur le port ${PORT}`));
