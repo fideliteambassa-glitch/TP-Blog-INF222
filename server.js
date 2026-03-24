@@ -111,17 +111,129 @@ const PORT = process.env.PORT || 3000;
 // Route pour la page d'accueil
 app.get('/', (req, res) => {
     res.send(`
-        <html>
-            <head><title>Mon API Blog - INF 222</title></head>
-            <body style="font-family: sans-serif; text-align: center; padding: 50px; background-color: #f4f4f9;">
-                <h1 style="color: #2c3e50;"> Backend Connecté avec Succès !</h1>
-                <p>Bienvenue sur l'API de mon blog pour l'UE INF 222.</p>
-                <div style="margin-top: 30px;">
-                    <a href="/api-docs" style="padding: 12px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
-                        Consulter la Documentation Swagger
-                    </a>
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Blog API - Interface Web</title>
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }
+                .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                h1 { color: #2563eb; text-align: center; font-size: 2em; margin-bottom: 10px; }
+                p.subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; }
+                .btn-docs { display: block; width: fit-content; margin: 0 auto 30px; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+                .btn-docs:hover { background: #1d4ed8; }
+                
+                .section { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e5e7eb; }
+                h2 { margin-top: 0; color: #374151; font-size: 1.5em; }
+                
+                input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
+                button { padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+                button:hover { background: #059669; }
+                
+                .article-card { background: white; border: 1px solid #e5e7eb; padding: 15px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
+                .article-content h3 { margin: 0 0 10px 0; color: #111827; }
+                .article-content p { margin: 0; color: #4b5563; }
+                .btn-delete { background: #ef4444; padding: 8px 15px; font-size: 0.9em; }
+                .btn-delete:hover { background: #dc2626; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🚀 Interface de Gestion du Blog</h1>
+                <p class="subtitle">Projet Backend INF 222 - Déployé sur Railway</p>
+                
+                <a href="/api-docs" class="btn-docs">📖 Consulter la documentation Swagger</a>
+
+                <div class="section">
+                    <h2>📝 Ajouter un article</h2>
+                    <form id="add-form">
+                        <input type="text" id="title" placeholder="Titre de l'article" required>
+                        <textarea id="content" placeholder="Contenu de l'article" rows="4" required></textarea>
+                        <button type="submit">➕ Publier l'article</button>
+                    </form>
                 </div>
-            </body>
+
+                <div class="section">
+                    <h2>📚 Liste des articles</h2>
+                    <div id="articles-list">
+                        <p>Chargement des articles...</p>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                //  IMPORTANT : Remplace '/articles' par la route de ton API si elle est différente (ex: '/api/articles')
+                const API_URL = '//articles';
+
+                // Fonction pour récupérer et afficher les articles
+                async function fetchArticles() {
+                    const list = document.getElementById('articles-list');
+                    try {
+                        const response = await fetch(API_URL);
+                        const data = await response.json();
+                        
+                        list.innerHTML = ''; // On vide la liste
+                        
+                        if(data.length === 0) {
+                            list.innerHTML = '<p>Aucun article trouvé. Ajoutez-en un !</p>';
+                            return;
+                        }
+
+                        data.forEach(article => {
+                            // On adapte selon ton modèle (title/titre, content/contenu)
+                            const titre = article.title || article.titre || 'Sans titre';
+                            const contenu = article.content || article.contenu || 'Sans contenu';
+                            
+                            const div = document.createElement('div');
+                            div.className = 'article-card';
+                            div.innerHTML = \`
+                                <div class="article-content">
+                                    <h3>\${titre}</h3>
+                                    <p>\${contenu}</p>
+                                </div>
+                                <button class="btn-delete" onclick="deleteArticle('\${article._id}')">🗑️ Supprimer</button>
+                            \`;
+                            list.appendChild(div);
+                        });
+                    } catch (error) {
+                        list.innerHTML = '<p style="color: red;">Erreur de connexion à l\\'API.</p>';
+                    }
+                }
+
+                // Fonction pour ajouter un article
+                document.getElementById('add-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    // On récupère les valeurs
+                    const titleValue = document.getElementById('title').value;
+                    const contentValue = document.getElementById('content').value;
+
+                    // Adapte 'title' et 'content' selon les noms dans ton schéma MongoDB
+                    const newArticle = { title: titleValue, content: contentValue };
+
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(newArticle)
+                    });
+
+                    document.getElementById('add-form').reset(); // Vide le formulaire
+                    fetchArticles(); // Recharge la liste
+                });
+
+                // Fonction pour supprimer un article
+                async function deleteArticle(id) {
+                    if(confirm("Voulez-vous vraiment supprimer cet article ?")) {
+                        await fetch(\`\${API_URL}/\${id}\`, { method: 'DELETE' });
+                        fetchArticles(); // Recharge la liste
+                    }
+                }
+
+                // Charger les articles au démarrage
+                fetchArticles();
+            </script>
+        </body>
         </html>
     `);
 });
