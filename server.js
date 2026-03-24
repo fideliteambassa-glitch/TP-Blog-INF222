@@ -116,121 +116,220 @@ app.get('/', (req, res) => {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Blog API - Interface Web</title>
+            <title>Blog API - Gestion Complète</title>
             <style>
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #1f2937; margin: 0; padding: 20px; }
-                .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-                h1 { color: #2563eb; text-align: center; font-size: 2em; margin-bottom: 10px; }
+                :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --bg: #f3f4f6; --text: #1f2937; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+                .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+                h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
                 p.subtitle { text-align: center; color: #6b7280; margin-bottom: 30px; }
-                .btn-docs { display: block; width: fit-content; margin: 0 auto 30px; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+                
+                .header-actions { display: flex; justify-content: center; margin-bottom: 30px; }
+                .btn-docs { padding: 10px 20px; background: var(--primary); color: white; text-decoration: none; border-radius: 6px; font-weight: bold; transition: 0.2s; }
                 .btn-docs:hover { background: #1d4ed8; }
+
+                .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+                @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+                .panel { background: #f9fafb; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; }
+                h2 { margin-top: 0; color: #374151; font-size: 1.3em; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+
+                .form-group { margin-bottom: 15px; }
+                label { display: block; margin-bottom: 5px; font-weight: bold; color: #4b5563; }
+                input, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
                 
-                .section { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #e5e7eb; }
-                h2 { margin-top: 0; color: #374151; font-size: 1.5em; }
+                .btn-submit { width: 100%; padding: 12px; background: var(--success); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.2s; }
+                .btn-submit:hover { background: #059669; }
+                .btn-cancel { width: 100%; padding: 10px; margin-top: 10px; background: #9ca3af; color: white; border: none; border-radius: 6px; cursor: pointer; display: none; }
+
+                .article-card { background: white; border: 1px solid #e5e7eb; padding: 15px; margin-bottom: 15px; border-radius: 8px; position: relative; }
+                .article-card h3 { margin: 0 0 10px 0; color: #111827; }
+                .article-card p { margin: 0 0 15px 0; color: #4b5563; line-height: 1.5; }
                 
-                input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-                button { padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-                button:hover { background: #059669; }
+                .card-actions { display: flex; gap: 10px; }
+                .btn-edit { background: var(--warning); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+                .btn-delete { background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
                 
-                .article-card { background: white; border: 1px solid #e5e7eb; padding: 15px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: flex-start; }
-                .article-content h3 { margin: 0 0 10px 0; color: #111827; }
-                .article-content p { margin: 0; color: #4b5563; }
-                .btn-delete { background: #ef4444; padding: 8px 15px; font-size: 0.9em; }
-                .btn-delete:hover { background: #dc2626; }
+                .status-msg { padding: 10px; border-radius: 6px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center; }
+                .success { background: #d1fae5; color: #065f46; display: block; }
+                .error { background: #fee2e2; color: #991b1b; display: block; }
             </style>
         </head>
         <body>
             <div class="container">
-                <h1>🚀 Interface de Gestion du Blog</h1>
-                <p class="subtitle">Projet Backend INF 222 - Déployé sur Railway</p>
+                <h1>⚙️ Administration du Blog</h1>
+                <p class="subtitle">Interface Frontend Complète connectée à l'API (INF 222)</p>
                 
-                <a href="/api-docs" class="btn-docs">📖 Consulter la documentation Swagger</a>
-
-                <div class="section">
-                    <h2>📝 Ajouter un article</h2>
-                    <form id="add-form">
-                        <input type="text" id="title" placeholder="Titre de l'article" required>
-                        <textarea id="content" placeholder="Contenu de l'article" rows="4" required></textarea>
-                        <button type="submit">➕ Publier l'article</button>
-                    </form>
+                <div class="header-actions">
+                    <a href="/api-docs" class="btn-docs">📖 Voir la Documentation Swagger</a>
                 </div>
 
-                <div class="section">
-                    <h2>📚 Liste des articles</h2>
-                    <div id="articles-list">
-                        <p>Chargement des articles...</p>
+                <div id="statusMessage" class="status-msg"></div>
+
+                <div class="grid">
+                    <div class="panel">
+                        <h2 id="formTitle">📝 Créer un article</h2>
+                        <form id="articleForm">
+                            <input type="hidden" id="articleId">
+                            <div class="form-group">
+                                <label>Titre de l'article</label>
+                                <input type="text" id="title" required placeholder="Ex: Introduction à Node.js">
+                            </div>
+                            <div class="form-group">
+                                <label>Contenu</label>
+                                <textarea id="content" rows="6" required placeholder="Rédigez votre contenu ici..."></textarea>
+                            </div>
+                            <button type="submit" id="submitBtn" class="btn-submit">➕ Publier l'article</button>
+                            <button type="button" id="cancelBtn" class="btn-cancel" onclick="resetForm()">Annuler la modification</button>
+                        </form>
+                    </div>
+
+                    <div class="panel">
+                        <h2>📚 Tous les articles</h2>
+                        <div id="articlesList">
+                            <p>Chargement des articles en cours...</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <script>
-                //  IMPORTANT : Remplace '/articles' par la route de ton API si elle est différente (ex: '/api/articles')
-                const API_URL = '//articles';
+                // ==========================================
+                // ⚠️ IMPORTANT : VERIFIE CETTE ROUTE
+                // ==========================================
+                const API_URL = '/api/articles'; // Mets '/api/articles' si c'est ce que tu as dans ton backend !
+                
+                const form = document.getElementById('articleForm');
+                const titleInput = document.getElementById('title');
+                const contentInput = document.getElementById('content');
+                const idInput = document.getElementById('articleId');
+                const submitBtn = document.getElementById('submitBtn');
+                const cancelBtn = document.getElementById('cancelBtn');
+                const formTitle = document.getElementById('formTitle');
+                const statusMessage = document.getElementById('statusMessage');
 
-                // Fonction pour récupérer et afficher les articles
+                // Afficher un message de succès ou d'erreur
+                function showMessage(msg, isError = false) {
+                    statusMessage.textContent = msg;
+                    statusMessage.className = 'status-msg ' + (isError ? 'error' : 'success');
+                    setTimeout(() => statusMessage.style.display = 'none', 3000);
+                }
+
+                // 1. LIRE (GET) - Récupérer tous les articles
                 async function fetchArticles() {
-                    const list = document.getElementById('articles-list');
+                    const list = document.getElementById('articlesList');
                     try {
                         const response = await fetch(API_URL);
+                        if (!response.ok) throw new Error('Erreur réseau');
                         const data = await response.json();
                         
-                        list.innerHTML = ''; // On vide la liste
-                        
+                        list.innerHTML = ''; 
                         if(data.length === 0) {
-                            list.innerHTML = '<p>Aucun article trouvé. Ajoutez-en un !</p>';
+                            list.innerHTML = '<p>Aucun article trouvé. La base de données est vide.</p>';
                             return;
                         }
 
                         data.forEach(article => {
-                            // On adapte selon ton modèle (title/titre, content/contenu)
                             const titre = article.title || article.titre || 'Sans titre';
                             const contenu = article.content || article.contenu || 'Sans contenu';
-                            
+                            const id = article._id;
+
                             const div = document.createElement('div');
                             div.className = 'article-card';
+                            // On échappe les guillemets pour éviter les bugs dans le onclick
+                            const safeTitre = titre.replace(/'/g, "\\'");
+                            const safeContenu = contenu.replace(/'/g, "\\'");
+
                             div.innerHTML = \`
-                                <div class="article-content">
-                                    <h3>\${titre}</h3>
-                                    <p>\${contenu}</p>
+                                <h3>\${titre}</h3>
+                                <p>\${contenu}</p>
+                                <div class="card-actions">
+                                    <button class="btn-edit" onclick="editArticle('\${id}', '\${safeTitre}', '\${safeContenu}')">✏️ Modifier</button>
+                                    <button class="btn-delete" onclick="deleteArticle('\${id}')">🗑️ Supprimer</button>
                                 </div>
-                                <button class="btn-delete" onclick="deleteArticle('\${article._id}')">🗑️ Supprimer</button>
                             \`;
                             list.appendChild(div);
                         });
                     } catch (error) {
-                        list.innerHTML = '<p style="color: red;">Erreur de connexion à l\\'API.</p>';
+                        list.innerHTML = '<p style="color: red;">❌ Erreur de connexion à l\\'API. Vérifie que la route API_URL est correcte.</p>';
                     }
                 }
 
-                // Fonction pour ajouter un article
-                document.getElementById('add-form').addEventListener('submit', async (e) => {
+                // 2. CREER (POST) & 3. METTRE A JOUR (PUT/PATCH)
+                form.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    // On récupère les valeurs
-                    const titleValue = document.getElementById('title').value;
-                    const contentValue = document.getElementById('content').value;
+                    
+                    const payload = {
+                        title: titleInput.value,
+                        content: contentInput.value
+                        // Si ton modèle utilise "titre" et "contenu", change les clés ici !
+                    };
 
-                    // Adapte 'title' et 'content' selon les noms dans ton schéma MongoDB
-                    const newArticle = { title: titleValue, content: contentValue };
+                    const articleId = idInput.value;
+                    const method = articleId ? 'PUT' : 'POST'; // Si on a un ID, c'est une modification
+                    const url = articleId ? \`\${API_URL}/\${articleId}\` : API_URL;
 
-                    await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(newArticle)
-                    });
+                    try {
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
 
-                    document.getElementById('add-form').reset(); // Vide le formulaire
-                    fetchArticles(); // Recharge la liste
+                        if (response.ok) {
+                            showMessage(articleId ? 'Article modifié avec succès !' : 'Article publié avec succès !');
+                            resetForm();
+                            fetchArticles();
+                        } else {
+                            throw new Error('Erreur lors de la sauvegarde');
+                        }
+                    } catch (error) {
+                        showMessage(error.message, true);
+                    }
                 });
 
-                // Fonction pour supprimer un article
+                // 4. SUPPRIMER (DELETE)
                 async function deleteArticle(id) {
-                    if(confirm("Voulez-vous vraiment supprimer cet article ?")) {
-                        await fetch(\`\${API_URL}/\${id}\`, { method: 'DELETE' });
-                        fetchArticles(); // Recharge la liste
+                    if(confirm("⚠️ Êtes-vous sûr de vouloir supprimer définitivement cet article ?")) {
+                        try {
+                            const response = await fetch(\`\${API_URL}/\${id}\`, { method: 'DELETE' });
+                            if(response.ok) {
+                                showMessage('Article supprimé.');
+                                fetchArticles();
+                            } else {
+                                throw new Error('Erreur lors de la suppression');
+                            }
+                        } catch (error) {
+                            showMessage(error.message, true);
+                        }
                     }
                 }
 
-                // Charger les articles au démarrage
+                // Préparer le formulaire pour la modification
+                function editArticle(id, title, content) {
+                    idInput.value = id;
+                    titleInput.value = title;
+                    contentInput.value = content;
+                    
+                    formTitle.innerHTML = '✏️ Modifier l\\'article';
+                    submitBtn.innerHTML = '💾 Enregistrer les modifications';
+                    submitBtn.style.background = 'var(--warning)';
+                    cancelBtn.style.display = 'block';
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+
+                // Réinitialiser le formulaire
+                function resetForm() {
+                    form.reset();
+                    idInput.value = '';
+                    formTitle.innerHTML = '📝 Créer un article';
+                    submitBtn.innerHTML = '➕ Publier l\\'article';
+                    submitBtn.style.background = 'var(--success)';
+                    cancelBtn.style.display = 'none';
+                }
+
+                // Charger la liste au démarrage
                 fetchArticles();
             </script>
         </body>
